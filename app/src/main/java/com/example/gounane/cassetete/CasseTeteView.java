@@ -45,7 +45,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     private Context 	mContext;
 
     // taille de la carte
-    static final int    carteWidth    = 6;
+    static final int    carteWidth    = 4;
     static final int    carteHeight   = 6;
     static final int    carteTileSize = 40;
 
@@ -56,6 +56,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     int        carteLeftAnchor;                  // coordonnées en X du point d'ancrage de notre carte
 
     // thread utiliser pour animer les zones de depot des diamants
+    boolean keepDrawing = true;
     private     boolean in      = true;
     private     Thread  cv_thread;
     SurfaceHolder holder;
@@ -83,6 +84,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         mContext	= context;
         mRes 		= mContext.getResources();
         vide 		= BitmapFactory.decodeResource(mRes, R.drawable.vide);
+        vert 		= BitmapFactory.decodeResource(mRes, R.drawable.vert);
 
         // initialisation des parmametres du jeu
         initparameters();
@@ -120,31 +122,50 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     private void loadlevel() {
         for (int i=0; i< carteHeight; i++) {
             for (int j=0; j< carteWidth; j++) {
-                carte[j][i]= met.ref[j][i];
+                carte[i][j]= met.ref[i][j];
             }
         }
     }
+    Paint p = new Paint();
     //dessin de la carte du jeu
     private void paintcarte(Canvas canvas) {
-        for (int i=0; i< carteHeight; i++) {
+        /*for (int i=0; i< carteHeight; i++) {
             for (int j=0; j< carteWidth; j++) {
                 canvas.drawBitmap(vide, carteLeftAnchor+ j*carteTileSize, carteTopAnchor+ i*carteTileSize, null);
+
             }
-        }
+        }*/
+
+        p.setColor(Color.BLUE);
+
+        p.setStyle(Paint.Style.FILL);
+
+        canvas.drawRect(200,100,300,110, p);
+
+
+    }
+
+    int xPlayer = 5;
+    int yPlayer=2;
+    // dessin du curseur du joueur
+    private void paintPlayer(Canvas canvas) {
+        canvas.drawBitmap(vert, xPlayer*carteTileSize,  yPlayer*carteTileSize, null);
+        canvas.drawBitmap(vert, xPlayer*carteTileSize,  (yPlayer+1)*carteTileSize, null);
+        canvas.drawBitmap(vert, (xPlayer+1)*carteTileSize,  yPlayer*carteTileSize, null);
+        canvas.drawBitmap(vert, (xPlayer+1)*carteTileSize,  (yPlayer+1)*carteTileSize, null);
     }
     // dessin du jeu (fond uni, en fonction du jeu gagne ou pas dessin du plateau et du joueur des diamants et des fleches)
     private void nDraw(Canvas canvas) {
         canvas.drawRGB(44,44,44);
         paintcarte(canvas);
-
-
+        paintPlayer(canvas);
     }
 
     @Override
     public void run() {
 
         Canvas c = null;
-        while (in) {
+        while (keepDrawing) {
             try {
                 cv_thread.sleep(40);
                 //currentStepZone = (currentStepZone + 1) % maxStepZone;
@@ -175,7 +196,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
     public void surfaceDestroyed(SurfaceHolder arg0) {
         Log.i("-> FCT <-", "surfaceDestroyed");
-
+        keepDrawing = false;
 
 
 
@@ -193,4 +214,63 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
         }
     }
+    int xvert=0;
+    int yvert=0;
+    boolean move = false;
+    int xTmpPlayer;
+    int yTmpPlayer;
+
+    // fonction permettant de recuperer les evenements tactiles
+    public boolean onTouchEvent (MotionEvent event) {
+
+        /*xTmpPlayer = xPlayer;
+        yTmpPlayer = yPlayer;
+
+
+
+
+        Log.i("-> FCT <-", "onTouchEvent: "+ event.getX());
+        Log.i("-> FCT <-", "onTouchEvent&: "+ xvert);
+        Log.i("-> FCT <-", "onTouchEvent3: "+ event.getAction());
+        if((xPlayer*carteTileSize)<event.getX()&&event.getX()<((xPlayer+2)*carteTileSize)&&(yPlayer*carteTileSize)<event.getY()&&event.getY()<((yPlayer+2)*carteTileSize))
+        {
+            if (event.getAction()==MotionEvent.ACTION_DOWN){
+                xvert= (int) ((-xPlayer*carteTileSize)+event.getX());
+                yvert= (int) ((-yPlayer*carteTileSize)+event.getY());
+
+            }
+            if (event.getAction()==MotionEvent.ACTION_MOVE) {
+                xPlayer = (int) ((event.getX()) - xvert) / carteTileSize;
+                yPlayer = (int) ((event.getY()) - xvert) / carteTileSize;
+                Log.i("-> FCT <-", "onTouchEvent&ééé11111111111: " + xPlayer);
+                Log.i("-> FCT <-", "onTouchEvent&ééé11111111111: " + yPlayer);
+            }
+        }*/
+
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                xvert= (int) ((-xPlayer*carteTileSize)+event.getX());
+                yvert= (int) ((-yPlayer*carteTileSize)+event.getY());
+
+                if((xPlayer*carteTileSize)<event.getX()&&event.getX()<((xPlayer+2)*carteTileSize)&&(yPlayer*carteTileSize)<event.getY()&&event.getY()<((yPlayer+2)*carteTileSize))
+                    move = true;
+                break;
+            case MotionEvent.ACTION_MOVE:
+
+                if(move){
+                    xPlayer = (int) ((event.getX()) - xvert) / carteTileSize;
+                    yPlayer = (int) ((event.getY()) - xvert) / carteTileSize;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+
+                move = false;
+                break;
+        }
+
+                invalidate ();
+        return true;
+    }
+
 }
