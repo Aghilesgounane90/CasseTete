@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.Random;
+
 /**
  * Created by gounane on 15/11/17.
  */
@@ -44,16 +46,26 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     private Resources 	mRes;
     private Context 	mContext;
 
-    // taille de la carte
-    static final int    carteWidth    = 4;
-    static final int    carteHeight   = 6;
-    static final int    carteTileSize = 40;
+    // taille de la carte du jeu
+    static final int    carteWidth    = 10;
+    static final int    carteHeight   = 18;
+    static final int    carteTileSize = 60;
+
+    // taille de la carte du gain
+    static final int    carteWidthGain    = 4;
+    static final int    carteHeightGain   = 6;
 
     int[][] carte;
+    int[][] carteGain;
 
     // ancres pour pouvoir centrer la carte du jeu
     int        carteTopAnchor;                   // coordonnées en Y du point d'ancrage de notre carte
     int        carteLeftAnchor;                  // coordonnées en X du point d'ancrage de notre carte
+
+    // ancres pour pouvoir centrer la carte du gain du jeu
+    int        carteTopGain; // coordonnées en Y du point d'ancrage de notre carte gain
+    int        carteLeftGain;// coordonnées en X du point d'ancrage de notre carte gain
+
 
     // thread utiliser pour animer les zones de depot des diamants
     boolean keepDrawing = true;
@@ -111,6 +123,9 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         carteTopAnchor  = (getHeight()-carteHeight*carteTileSize)/2;
         carteLeftAnchor = (getWidth()-carteWidth*carteTileSize)/2;
 
+        carteTopGain = (getHeight()-carteHeightGain*carteTileSize)/2;
+        carteLeftGain = (getWidth()-carteWidthGain*carteTileSize)/2;
+
         if ((cv_thread!=null) && (!cv_thread.isAlive())) {
             cv_thread.start();
             Log.e("-FCT-", "cv_thread.start()");
@@ -140,25 +155,25 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
         p.setStyle(Paint.Style.FILL);
 
-        canvas.drawRect(200,100,300,110, p);
-
-
+        canvas.drawRect(carteLeftGain,carteTopGain,carteLeftGain+(carteWidthGain*carteTileSize),carteTopGain+(carteHeightGain*carteTileSize), p);
     }
 
-    int xPlayer = 5;
-    int yPlayer=2;
-    // dessin du curseur du joueur
-    private void paintPlayer(Canvas canvas) {
-        canvas.drawBitmap(vert, xPlayer*carteTileSize,  yPlayer*carteTileSize, null);
-        canvas.drawBitmap(vert, xPlayer*carteTileSize,  (yPlayer+1)*carteTileSize, null);
-        canvas.drawBitmap(vert, (xPlayer+1)*carteTileSize,  yPlayer*carteTileSize, null);
-        canvas.drawBitmap(vert, (xPlayer+1)*carteTileSize,  (yPlayer+1)*carteTileSize, null);
+    Random r = new Random();
+    int xVert = 1 + r.nextInt(carteWidth - 3);
+    int yVert = 1 + r.nextInt(carteHeight - 3);
+
+    // dessin du cadre vert
+    private void paintVert(Canvas canvas) {
+        canvas.drawBitmap(vert, carteLeftAnchor+(xVert*carteTileSize),  carteTopAnchor+(yVert*carteTileSize), null);
+        canvas.drawBitmap(vert, carteLeftAnchor+(xVert*carteTileSize),  carteTopAnchor+((yVert+1)*carteTileSize), null);
+        canvas.drawBitmap(vert, carteLeftAnchor+((xVert+1)*carteTileSize),  carteTopAnchor+(yVert*carteTileSize), null);
+        canvas.drawBitmap(vert, carteLeftAnchor+((xVert+1)*carteTileSize),  carteTopAnchor+((yVert+1)*carteTileSize), null);
     }
     // dessin du jeu (fond uni, en fonction du jeu gagne ou pas dessin du plateau et du joueur des diamants et des fleches)
     private void nDraw(Canvas canvas) {
         canvas.drawRGB(44,44,44);
         paintcarte(canvas);
-        paintPlayer(canvas);
+        paintVert(canvas);
     }
 
     @Override
@@ -223,6 +238,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     // fonction permettant de recuperer les evenements tactiles
     public boolean onTouchEvent (MotionEvent event) {
 
+
         /*xTmpPlayer = xPlayer;
         yTmpPlayer = yPlayer;
 
@@ -250,17 +266,25 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                xvert= (int) ((-xPlayer*carteTileSize)+event.getX());
-                yvert= (int) ((-yPlayer*carteTileSize)+event.getY());
 
-                if((xPlayer*carteTileSize)<event.getX()&&event.getX()<((xPlayer+2)*carteTileSize)&&(yPlayer*carteTileSize)<event.getY()&&event.getY()<((yPlayer+2)*carteTileSize))
+                xvert= (int) (event.getX()-(carteLeftAnchor+(xVert*carteTileSize)));
+                yvert= (int) (event.getY()-(carteTopAnchor+(yVert*carteTileSize)));
+
+                if((carteLeftAnchor+(xVert*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xVert+2)*carteTileSize))&&((carteTopAnchor+(yVert*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yVert+2)*carteTileSize)))
                     move = true;
                 break;
             case MotionEvent.ACTION_MOVE:
-
+                int xTmp = xVert;
+                int yTmp = yVert;
                 if(move){
-                    xPlayer = (int) ((event.getX()) - xvert) / carteTileSize;
-                    yPlayer = (int) ((event.getY()) - xvert) / carteTileSize;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
+                        xVert=xTmp;
+                        yVert=yTmp;
+                    }else
+                    {
+                        xVert = (int) ((event.getX()) - (xvert)) / carteTileSize;
+                        yVert = (int) ((event.getY()) - (xvert)) / carteTileSize;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -273,4 +297,14 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         return true;
     }
 
+    // verification que nous sommes dans le tableau
+    private boolean IsOut(int x, int y) {
+        if ((x < (carteLeftAnchor/carteTileSize)) || (x > (carteLeftAnchor/carteTileSize)+carteWidth-3)) {
+            return true;
+        }
+        if ((y < 1) || (y > 16)) {
+            return true;
+        }
+        return false;
+    }
 }
