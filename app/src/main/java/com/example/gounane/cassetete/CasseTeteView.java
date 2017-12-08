@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import java.util.Random;
 
@@ -33,13 +34,15 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
     // constante modelisant les differentes types de cases
     static final int CST_vide = 0;
-    static final int CST_vert = 1;
+    static final int CST_plein = 1;
     static final int CST_blue = 2;
     static final int CST_rose = 3;
     static final int CST_violet = 4;
     static final int CST_jaune = 5;
     static final int CST_zone = 6;
     static final int CST_rouge = 7;
+    static final int CST_vert = 8;
+    static final int CST_vert1 = 9;
 
     // Declaration des objets Ressources et Context permettant d'accéder aux ressources de notre application et de les charger
     private Resources mRes;
@@ -50,12 +53,15 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     static final int carteHeight = 18;
     static final int carteTileSize = 60;
 
-    // taille de la carte du gain
-    static final int carteWidthGain = 3;
-    static final int carteHeightGain = 5;
+    int carteWidthGain;
+    int carteHeightGain;
+
+
+    int niveau= 0;
 
     int[][] carte;
     int[][] carteGain;
+    int[][] cartePosition = new int[19][18];
 
     // ancres pour pouvoir centrer la carte du jeu
     int carteTopAnchor;                   // coordonnées en Y du point d'ancrage de notre carte
@@ -98,6 +104,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         super(context, attrs);
 
 
+
         // permet d'ecouter les surfaceChanged, surfaceCreated, surfaceDestroyed
         holder = getHolder();
         holder.addCallback(this);
@@ -131,22 +138,26 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(3);
         paint.setTextAlign(Paint.Align.LEFT);
-        carte = new int[carteHeight][carteWidth];
-        loadlevel();
-        carteTopAnchor = (getHeight() - carteHeight * carteTileSize) / 2;
-        carteLeftAnchor = (getWidth() - carteWidth * carteTileSize) / 2;
 
-        carteTopGain = (getHeight() - carteHeightGain * carteTileSize) / 2;
-        carteLeftGain = (getWidth() - carteWidthGain * carteTileSize) / 2;
+
 
         if ((cv_thread != null) && (!cv_thread.isAlive())) {
             cv_thread.start();
             Log.e("-FCT-", "cv_thread.start()");
         }
     }
+    public void initparametersNiveau(){
+        carte = new int[carteHeight][carteWidth];
+        loadlevel();
+        carteTopAnchor = (getHeight() - carteHeight * carteTileSize) / 2;
+        carteLeftAnchor = (getWidth() - carteWidth * carteTileSize) / 2;
+
+
+
+    }
 
     // tableau de reference du terrain
-    int[][] ref = {
+    int[][] refNiveau0 = {
             {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
             {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
             {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
@@ -167,12 +178,89 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
             {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
             {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
     };
+    int[][] refNiveau1 = {
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_zone, CST_zone, CST_zone, CST_zone, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+            {CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide, CST_vide},
+    };
+    int[][] refTestsCase = new int[carteHeight][carteWidth] ;
     // chargement du niveau a partir du tableau de reference du niveau
     private void loadlevel() {
-        for (int i = 0; i < carteHeight; i++) {
-            for (int j = 0; j < carteWidth; j++) {
-                carte[i][j] = ref[i][j];
+
+
+
+        switch (niveau) {
+            case 0:
+                for (int i = 0; i < carteHeight; i++) {
+                    for (int j = 0; j < carteWidth; j++) {
+                        if(((i==yVert)&&(j==xVert ))||((i==yVert)&&(j==xVert+1 ))||((i==yVert+1)&&(j==xVert ))||((i==yVert+1)&&(j==xVert+1 ))){
+                            refTestsCase[i][j]=CST_vert;
+                        }
+                        else if(((i==yVert1)&&(j==xVert1 ))||((i==yVert1)&&(j==xVert1+1 ))||((i==yVert1+1)&&(j==xVert1 ))||((i==yVert1+1)&&(j==xVert1+1 ))){
+                            refTestsCase[i][j]=CST_vert1;
+                        }
+                        else if(((i==yBlue)&&(j==xBlue ))||((i==yBlue+1)&&(j==xBlue ))||((i==yBlue+2)&&(j==xBlue ))||((i==yBlue+2)&&(j==xBlue+1 ))){
+                            refTestsCase[i][j]=CST_blue;
+                        }
+                        else if(((i==yRouge)&&(j==xRouge ))||((i==yRouge+1)&&(j==xRouge ))||((i==yRouge+2)&&(j==xRouge ))){
+                            refTestsCase[i][j]=CST_rouge;
+                        }
+                        else{
+                            refTestsCase[i][j]=CST_vide;
+                        }
+                    }
+                }
+            for (int i = 0; i < carteHeight; i++) {
+                for (int j = 0; j < carteWidth; j++) {
+                    carte[i][j] = refNiveau0[i][j];
+                }
             }
+
+                // taille de la carte du gain
+                carteWidthGain = 3;
+                carteHeightGain = 5;
+                carteTopGain = (getHeight() - carteHeightGain * carteTileSize) / 2;
+                carteLeftGain = (getWidth() - carteWidthGain * carteTileSize) / 2;
+            break;
+            case 1:
+                for (int i = 0; i < carteHeight; i++) {
+                    for (int j = 0; j < carteWidth; j++) {
+                        if(((i==yVert)&&(j==xVert ))||((i==yVert)&&(j==xVert+1 ))||((i==yVert+1)&&(j==xVert ))||((i==yVert+1)&&(j==xVert+1 ))){
+                            refTestsCase[i][j]=CST_vert;
+                        }
+                        else{
+                            refTestsCase[i][j]=CST_vide;
+                        }
+                    }
+                }
+                for (int i = 0; i < carteHeight; i++) {
+                    for (int j = 0; j < carteWidth; j++) {
+                        carte[i][j] = refNiveau1[i][j];
+                    }
+                }
+                // taille de la carte du gain
+                carteWidthGain = 4;
+                carteHeightGain = 6;
+                carteTopGain = (getHeight() - carteHeightGain * carteTileSize) / 2;
+                carteLeftGain = (getWidth() - carteWidthGain * carteTileSize) / 2;
+
+                break;
         }
     }
 
@@ -184,12 +272,6 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     }
     //dessin de la carte du jeu
     private void paintcarte(Canvas canvas) {
-        /*for (int i=0; i< carteHeight; i++) {
-            for (int j=0; j< carteWidth; j++) {
-                canvas.drawBitmap(vide, carteLeftAnchor+ j*carteTileSize, carteTopAnchor+ i*carteTileSize, null);
-
-            }
-        }*/
 
         p.setColor(Color.BLUE);
 
@@ -197,6 +279,17 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         //p.setAlpha(10);
 
         canvas.drawRect((float)(carteLeftGain+(0.5*carteTileSize)), (float)(carteTopGain+(0.5*carteTileSize)), (float)(carteLeftGain + ((carteWidthGain+(0.5)) * carteTileSize)), (float)(carteTopGain + ((carteHeightGain+(0.5)) * carteTileSize)), p);
+    }
+
+    //dessin de la carte du jeu
+    private void paintcarteNiveau1(Canvas canvas) {
+
+        p.setColor(Color.BLUE);
+
+        p.setStyle(Paint.Style.FILL);
+        //p.setAlpha(10);
+
+        canvas.drawRect((float)(carteLeftGain), (float)(carteTopGain), (float)(carteLeftGain + ((carteWidthGain) * carteTileSize)), (float)(carteTopGain + ((carteHeightGain) * carteTileSize)), p);
     }
 
 
@@ -222,7 +315,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         canvas.drawBitmap(rouge, carteLeftAnchor + (xRouge * carteTileSize), carteTopAnchor + ((yRouge + 1) * carteTileSize), null);
         canvas.drawBitmap(rouge, carteLeftAnchor + (xRouge * carteTileSize), carteTopAnchor + ((yRouge + 2) * carteTileSize), null);
     }
-    // dessin du brique rouge
+    // dessin du brique blue
     private void paintBlue(Canvas canvas) {
         canvas.drawBitmap(blue, carteLeftAnchor + (xBlue * carteTileSize), carteTopAnchor + (yBlue * carteTileSize), null);
         canvas.drawBitmap(blue, carteLeftAnchor + (xBlue * carteTileSize), carteTopAnchor + ((yBlue + 1) * carteTileSize), null);
@@ -238,16 +331,16 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         return false;
     }
     // permet d'identifier si la partie est gagnee (tous les diamants à leur place)
-    private boolean isWon() {
+    private boolean isWonNiveau1() {
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
              if (!IsCell(xVert+i, yVert+j, CST_zone)) {
                  return false;
                 }
             }
         }
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
                 if (!IsCell(xVert1+i, yVert1+j, CST_zone)) {
                     return false;
                 }
@@ -270,22 +363,38 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     }
     // dessin du jeu (fond uni, en fonction du jeu gagne ou pas dessin du plateau et du joueur des diamants et des fleches)
     private void nDraw(Canvas canvas) {
-        canvas.drawRGB(44,44,44);
-        if (isWon()) {
-            paintcarte(canvas);
-            paintwin(canvas);
-        }else{
-        paintcarte(canvas);
-        paintVert(canvas);
-        paintVert1(canvas);
-        paintRouge(canvas);
-        paintBlue(canvas);
+        initparametersNiveau();
+        switch (niveau) {
+            case 0:
+                canvas.drawRGB(44, 44, 44);
+                if (isWonNiveau1()) {
+                    paintcarte(canvas);
+                    paintwin(canvas);
+
+                } else {
+                    paintcarte(canvas);
+                    paintVert(canvas);
+                    paintVert1(canvas);
+                    paintRouge(canvas);
+                    paintBlue(canvas);
+                }
+                break;
+            case 1:
+                canvas.drawRGB(44, 44, 44);
+
+                    paintcarteNiveau1(canvas);
+                    paintVert(canvas);
+
+                break;
         }
     }
 
+
+
+
+
     @Override
     public void run() {
-
         Canvas c = null;
         while (keepDrawing) {
             try {
@@ -382,6 +491,12 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
                 if((carteLeftAnchor+(xBlue*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xBlue+1)*carteTileSize))&&((carteTopAnchor+(yBlue*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yBlue+3)*carteTileSize))||(carteLeftAnchor+((xBlue+1)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xBlue+2)*carteTileSize))&&((carteTopAnchor+((yBlue+2)*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yBlue+3)*carteTileSize)))
                     moveBlue = true;
+
+                if (isWonNiveau1()){
+                    if((carteLeftAnchor+(5*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((8)*carteTileSize))&&((carteTopAnchor+(3*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((8)*carteTileSize))){
+                        niveau=1;
+                    }
+                }
             break;
             case MotionEvent.ACTION_MOVE:
 
@@ -389,6 +504,10 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                     int xTmp = xVert;
                     int yTmp = yVert;
                     if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
+                        xVert=xTmp;
+                        yVert=yTmp;
+                    }else if (IsFull((int)((event.getX()-xvert)/carteTileSize), (int)((event.getY()-yvert)/carteTileSize),CST_vert)||IsFull((int)((event.getX()-xvert)/carteTileSize), (int)(((event.getY()-yvert)/carteTileSize))+1,CST_vert)||IsFull((int)(((event.getX()-xvert)/carteTileSize)+1), (int)((event.getY()-yvert)/carteTileSize),CST_vert)||IsFull((int)(((event.getX()-xvert)/carteTileSize)+1), (int)(((event.getY()-yvert)/carteTileSize))+1,CST_vert))
+                    {
                         xVert=xTmp;
                         yVert=yTmp;
                     }else
@@ -405,6 +524,10 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                     if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
                         xVert1=xTmp;
                         yVert1=yTmp;
+                    }else if (IsFull((int)((event.getX()-xvert1)/carteTileSize), (int)((event.getY()-yvert1)/carteTileSize),CST_vert1)||IsFull((int)((event.getX()-xvert1)/carteTileSize), (int)(((event.getY()-yvert1)/carteTileSize))+1,CST_vert1)||IsFull((int)(((event.getX()-xvert1)/carteTileSize)+1), (int)((event.getY()-yvert1)/carteTileSize),CST_vert1)||IsFull((int)(((event.getX()-xvert1)/carteTileSize)+1), (int)(((event.getY()-yvert1)/carteTileSize))+1,CST_vert1))
+                    {
+                        xVert1=xTmp;
+                        yVert1=yTmp;
                     }else
                     {
                         xVert1 = (int) ((event.getX()) - (xvert1)) / carteTileSize;
@@ -417,11 +540,15 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
             if(moveRouge){
                 int xTmp = xRouge;
                 int yTmp = yRouge;
-                if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
+                if(IsOut((int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
                     xRouge=xTmp;
                     yRouge=yTmp;
-                }else
+                }else if (IsFull((int)((event.getX()-xrouge)/carteTileSize), (int)((event.getY()-yrouge)/carteTileSize),CST_rouge)||IsFull((int)((event.getX()-xrouge)/carteTileSize), (int)(((event.getY()-yrouge)/carteTileSize))+1,CST_rouge)||IsFull((int)((event.getX()-xrouge)/carteTileSize), (int)(((event.getY()-yrouge)/carteTileSize))+2,CST_rouge))
                 {
+                    xRouge=xTmp;
+                    yRouge=yTmp;
+                }
+                else{
                     xRouge = (int) ((event.getX()) - (xrouge)) / carteTileSize;
                     yRouge = (int) ((event.getY()) - (yrouge)) / carteTileSize;
                 }
@@ -430,9 +557,13 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 if(moveBlue){
                     int xTmp = xBlue;
                     int yTmp = yBlue;
-                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))){
-                        xBlue=xTmp;
-                        yBlue=yTmp;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))) {
+                        xBlue = xTmp;
+                        yBlue = yTmp;
+                    }else if (IsFull((int)((event.getX()-xblue)/carteTileSize), (int)((event.getY()-yblue)/carteTileSize),CST_blue)||IsFull((int)((event.getX()-xblue)/carteTileSize), (int)(((event.getY()-yblue)/carteTileSize))+1,CST_blue)||IsFull((int)((event.getX()-xblue)/carteTileSize), (int)(((event.getY()-yblue)/carteTileSize))+2,CST_blue)||IsFull((int)(((event.getX()-xblue)/carteTileSize)+1), (int)(((event.getY()-yblue)/carteTileSize))+2,CST_blue))
+                    {
+                        xBlue = xTmp;
+                        yBlue = yTmp;
                     }else
                     {
                         xBlue = (int) ((event.getX()) - (xblue)) / carteTileSize;
@@ -449,6 +580,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 break;
         }
 
+
                 invalidate ();
         return true;
     }
@@ -462,5 +594,11 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
             return true;
         }
         return false;
+    }
+    private boolean IsFull(int x,int y,int k){
+        if(refTestsCase[y][x]==CST_vide||refTestsCase[y][x]==k){
+            return false;
+        }
+        return true;
     }
 }
