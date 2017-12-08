@@ -10,7 +10,7 @@ public class CasseTete extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_jeux);
         // recuperation de la vue une voie cree à partir de son id
         mCasseTeteView = (CasseTeteView)findViewById(R.id.CasseTeteView);
         // rend visible la vue

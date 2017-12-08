@@ -12,7 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
+import android.widget.Switch;
 
 import java.util.Random;
 
@@ -27,10 +27,13 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     private Bitmap rouge;
     private Bitmap vert;
     private Bitmap blue;
+    private Bitmap bluef;
     private Bitmap rose;
     private Bitmap violet;
     private Bitmap jaune;
     private Bitmap win;
+    private Bitmap niveau2;
+    private Bitmap niveau3;
 
     // constante modelisant les differentes types de cases
     static final int CST_vide = 0;
@@ -43,6 +46,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     static final int CST_rouge = 7;
     static final int CST_vert = 8;
     static final int CST_vert1 = 9;
+    static final int CST_bluef = 10;
 
     // Declaration des objets Ressources et Context permettant d'accéder aux ressources de notre application et de les charger
     private Resources mRes;
@@ -75,15 +79,24 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
 
 
 
-    Random r = new Random();
-    int xVert = 1 + r.nextInt(carteWidth - 3);
-    int yVert = 1 + r.nextInt(carteHeight - 3);
-    int xVert1 = 1 + r.nextInt(carteWidth - 3);
-    int yVert1 = 1 + r.nextInt(carteHeight - 3);
-    int xRouge = 1 + r.nextInt(carteWidth - 3);
-    int yRouge = 1 + r.nextInt(carteHeight - 3);
-    int xBlue = 1 + r.nextInt(carteWidth - 3);
-    int yBlue = 1 + r.nextInt(carteHeight - 3);
+    Random N1 = new Random();
+    Random N2 = new Random();
+
+        int xVert = 1 + N1.nextInt(carteWidth - 3);
+        int yVert = 1 + N1.nextInt(carteHeight - 3);
+        int xVert1 = 1 + N1.nextInt(carteWidth - 3);
+        int yVert1 = 1 + N1.nextInt(carteHeight - 3);
+        int xRouge = 1 + N1.nextInt(carteWidth - 3);
+        int yRouge = 1 + N1.nextInt(carteHeight - 3);
+        int xBlue = 1 + N1.nextInt(carteWidth - 3);
+        int yBlue = 1 + N1.nextInt(carteHeight - 3);
+        int xBluef = 1 + N1.nextInt(carteWidth - 3);
+        int yBluef = 1 + N1.nextInt(carteHeight - 3);
+        int xRose = 1 + N1.nextInt(carteWidth - 3);
+        int yRose = 1 + N1.nextInt(carteHeight - 3);
+        int xViolet = 1 + N1.nextInt(carteWidth - 3);
+        int yViolet = 1 + N1.nextInt(carteHeight - 3);
+
 
 
     // thread utiliser pour animer les zones de depot des diamants
@@ -116,7 +129,12 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         vert = BitmapFactory.decodeResource(mRes, R.drawable.vert);
         rouge = BitmapFactory.decodeResource(mRes, R.drawable.rouge);
         blue = BitmapFactory.decodeResource(mRes, R.drawable.blue);
+        bluef = BitmapFactory.decodeResource(mRes, R.drawable.bluef);
+        rose = BitmapFactory.decodeResource(mRes, R.drawable.rose);
+        violet = BitmapFactory.decodeResource(mRes, R.drawable.violet);
         win = BitmapFactory.decodeResource(mRes, R.drawable.win);
+        niveau2 = BitmapFactory.decodeResource(mRes, R.drawable.niveau2);
+        niveau3 = BitmapFactory.decodeResource(mRes, R.drawable.niveau3);
 
         // initialisation des parmametres du jeu
         initparameters();
@@ -151,9 +169,6 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         loadlevel();
         carteTopAnchor = (getHeight() - carteHeight * carteTileSize) / 2;
         carteLeftAnchor = (getWidth() - carteWidth * carteTileSize) / 2;
-
-
-
     }
 
     // tableau de reference du terrain
@@ -239,10 +254,28 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 carteLeftGain = (getWidth() - carteWidthGain * carteTileSize) / 2;
             break;
             case 1:
+
                 for (int i = 0; i < carteHeight; i++) {
                     for (int j = 0; j < carteWidth; j++) {
                         if(((i==yVert)&&(j==xVert ))||((i==yVert)&&(j==xVert+1 ))||((i==yVert+1)&&(j==xVert ))||((i==yVert+1)&&(j==xVert+1 ))){
                             refTestsCase[i][j]=CST_vert;
+                        } else if(((i==yVert1)&&(j==xVert1 ))||((i==yVert1)&&(j==xVert1+1 ))||((i==yVert1+1)&&(j==xVert1 ))||((i==yVert1+1)&&(j==xVert1+1 ))){
+                            refTestsCase[i][j]=CST_vert1;
+                        }
+                        else if(((i==yBlue)&&(j==xBlue ))||((i==yBlue+1)&&(j==xBlue ))||((i==yBlue+2)&&(j==xBlue ))||((i==yBlue+2)&&(j==xBlue+1 ))){
+                            refTestsCase[i][j]=CST_blue;
+                        }
+                        else if(((i==yBluef)&&(j==xBluef ))){
+                            refTestsCase[i][j]=CST_bluef;
+                        }
+                        else if(((i==yRouge)&&(j==xRouge ))||((i==yRouge+1)&&(j==xRouge ))||((i==yRouge+2)&&(j==xRouge ))){
+                            refTestsCase[i][j]=CST_rouge;
+                        }
+                        else if(((i==yViolet)&&(j==xViolet+1 ))||((i==yViolet+1)&&(j==xViolet+1 ))||((i==yViolet+2)&&(j==xViolet+1 ))||((i==yViolet+2)&&(j==xViolet ))){
+                            refTestsCase[i][j]=CST_violet;
+                        }
+                        else if(((i==yRose)&&(j==xRose+1 ))||((i==yRose+1)&&(j==xRose+1 ))||((i==yRose+1)&&(j==xRose ))||((i==yRose+2)&&(j==xRose+1 ))){
+                            refTestsCase[i][j]=CST_rose;
                         }
                         else{
                             refTestsCase[i][j]=CST_vide;
@@ -267,8 +300,8 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     Paint p = new Paint();
 
     // dessin du gagne si gagne
-    private void paintwin(Canvas canvas) {
-        canvas.drawBitmap(win, carteLeftAnchor+ 3*carteTileSize, carteTopAnchor+ 4*carteTileSize, null);
+    private void paintWin(Canvas canvas) {
+        canvas.drawBitmap(win, (int)(carteLeftAnchor+ 3.5*carteTileSize), carteTopAnchor+ 4*carteTileSize, null);
     }
     //dessin de la carte du jeu
     private void paintcarte(Canvas canvas) {
@@ -292,9 +325,26 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         canvas.drawRect((float)(carteLeftGain), (float)(carteTopGain), (float)(carteLeftGain + ((carteWidthGain) * carteTileSize)), (float)(carteTopGain + ((carteHeightGain) * carteTileSize)), p);
     }
 
-
-
-    // dessin du brique vert
+    private void paintGagneNiveau2(Canvas canvas){
+        canvas.drawBitmap(niveau3, carteLeftAnchor+ 3*carteTileSize, carteTopAnchor+ 6*carteTileSize, null);
+    }
+    private void paintGagneNiveau1(Canvas canvas){
+        canvas.drawBitmap(niveau2, carteLeftAnchor+ 3*carteTileSize, carteTopAnchor+ 6*carteTileSize, null);
+    }
+    // dessin du brique violet
+    private void paintViolet(Canvas canvas) {
+        canvas.drawBitmap(violet, carteLeftAnchor + ((xViolet + 1) * carteTileSize), carteTopAnchor + (yViolet * carteTileSize), null);
+        canvas.drawBitmap(violet, carteLeftAnchor + ((xViolet + 1) * carteTileSize), carteTopAnchor + ((yViolet + 1) * carteTileSize), null);
+        canvas.drawBitmap(violet, carteLeftAnchor + ((xViolet + 1) * carteTileSize), carteTopAnchor + ((yViolet + 2) * carteTileSize), null);
+        canvas.drawBitmap(violet, carteLeftAnchor + ((xViolet) * carteTileSize), carteTopAnchor + ((yViolet + 2) * carteTileSize), null);
+    }
+    private void paintRose(Canvas canvas) {
+        canvas.drawBitmap(rose, carteLeftAnchor + ((xRose + 1) * carteTileSize), carteTopAnchor + (yRose * carteTileSize), null);
+        canvas.drawBitmap(rose, carteLeftAnchor + ((xRose + 1) * carteTileSize), carteTopAnchor + ((yRose + 1) * carteTileSize), null);
+        canvas.drawBitmap(rose, carteLeftAnchor + ((xRose ) * carteTileSize), carteTopAnchor + ((yRose + 1) * carteTileSize), null);
+        canvas.drawBitmap(rose, carteLeftAnchor + ((xRose + 1) * carteTileSize), carteTopAnchor + ((yRose + 2) * carteTileSize), null);
+    }
+    // dessin du brique vert violet
     private void paintVert(Canvas canvas) {
         canvas.drawBitmap(vert, carteLeftAnchor + (xVert * carteTileSize), carteTopAnchor + (yVert * carteTileSize), null);
         canvas.drawBitmap(vert, carteLeftAnchor + (xVert * carteTileSize), carteTopAnchor + ((yVert + 1) * carteTileSize), null);
@@ -322,6 +372,10 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         canvas.drawBitmap(blue, carteLeftAnchor + (xBlue * carteTileSize), carteTopAnchor + ((yBlue + 2) * carteTileSize), null);
         canvas.drawBitmap(blue, carteLeftAnchor + ((xBlue+1) * carteTileSize), carteTopAnchor + ((yBlue + 2) * carteTileSize), null);
     }
+    // dessin du brique bluef
+    private void paintBluef(Canvas canvas) {
+        canvas.drawBitmap(bluef, carteLeftAnchor + (xBluef * carteTileSize), carteTopAnchor + (yBluef * carteTileSize), null);
+    }
 
     //controle de la valeur d'une cellule
     private boolean IsCell(int x, int y, int mask) {
@@ -330,7 +384,7 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         }
         return false;
     }
-    // permet d'identifier si la partie est gagnee (tous les diamants à leur place)
+    // permet d'identifier si la partie est gagnee niveau1
     private boolean isWonNiveau1() {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -361,6 +415,57 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
         }
      return true;
     }
+
+    // permet d'identifier si la partie est gagnee niveau1
+    private boolean isWonNiveau2() {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (!IsCell(xVert+i, yVert+j, CST_zone)) {
+                    return false;
+                }
+            }
+        }
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (!IsCell(xVert1+i, yVert1+j, CST_zone)) {
+                    return false;
+                }
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            if (!IsCell(xRouge, yRouge + i, CST_zone)) {
+                return false;
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            if (!IsCell(xRose+1, yRose + i, CST_zone)) {
+                return false;
+            }
+        }
+        if (!IsCell(xRose, yRose+1, CST_zone)) {
+            return false;
+        }
+        for (int i = 0; i < 3; i++) {
+            if (!IsCell(xBlue, yBlue + i, CST_zone)) {
+                return false;
+            }
+        }
+        if (!IsCell(xBlue+1, yBlue+2, CST_zone)) {
+            return false;
+        }
+        if (!IsCell(xBluef, yBluef, CST_zone)) {
+            return false;
+        }
+        for (int i = 0; i < 3; i++) {
+            if (!IsCell(xViolet+1, yViolet + i, CST_zone)) {
+                return false;
+            }
+        }
+        if (!IsCell(xViolet, yViolet+2, CST_zone)) {
+            return false;
+        }
+        return true;
+    }
     // dessin du jeu (fond uni, en fonction du jeu gagne ou pas dessin du plateau et du joueur des diamants et des fleches)
     private void nDraw(Canvas canvas) {
         initparametersNiveau();
@@ -368,8 +473,9 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
             case 0:
                 canvas.drawRGB(44, 44, 44);
                 if (isWonNiveau1()) {
-                    paintcarte(canvas);
-                    paintwin(canvas);
+                    paintWin(canvas);
+                    paintGagneNiveau1(canvas);
+
 
                 } else {
                     paintcarte(canvas);
@@ -381,17 +487,25 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 break;
             case 1:
                 canvas.drawRGB(44, 44, 44);
+                if (isWonNiveau2()) {
+                    paintWin(canvas);
+                    paintGagneNiveau2(canvas);
 
+
+                } else {
                     paintcarteNiveau1(canvas);
                     paintVert(canvas);
+                    paintVert1(canvas);
+                    paintBlue(canvas);
+                    paintRouge(canvas);
+                    paintViolet(canvas);
+                    paintBluef(canvas);
+                    paintRose(canvas);
+                }
 
                 break;
         }
     }
-
-
-
-
 
     @Override
     public void run() {
@@ -453,10 +567,20 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
     int yrouge=0;
     int xblue=0;
     int yblue=0;
+    int xbluef=0;
+    int ybluef=0;
+    int xviolet=0;
+    int yviolet=0;
+    int xrose=0;
+    int yrose=0;
+
     boolean moveVert = false;
     boolean moveVert1 = false;
     boolean moveRouge = false;
     boolean moveBlue = false;
+    boolean moveViolet = false;
+    boolean moveBluef = false;
+    boolean moveRose = false;
     int xTmpPlayer;
     int yTmpPlayer;
 
@@ -479,6 +603,14 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 xblue=(int) (event.getX()-(carteLeftAnchor+(xBlue*carteTileSize)));
                 yblue=(int) (event.getY()-(carteTopAnchor+(yBlue*carteTileSize)));
 
+                xbluef=(int) (event.getX()-(carteLeftAnchor+(xBluef*carteTileSize)));
+                ybluef=(int) (event.getY()-(carteTopAnchor+(yBluef*carteTileSize)));
+
+                xrose=(int) (event.getX()-(carteLeftAnchor+(xRose*carteTileSize)));
+                yrose=(int) (event.getY()-(carteTopAnchor+(yRose*carteTileSize)));
+
+                xviolet=(int) (event.getX()-(carteLeftAnchor+(xViolet*carteTileSize)));
+                yviolet=(int) (event.getY()-(carteTopAnchor+(yViolet*carteTileSize)));
 
                 if((carteLeftAnchor+(xVert*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xVert+2)*carteTileSize))&&((carteTopAnchor+(yVert*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yVert+2)*carteTileSize)))
                     moveVert = true;
@@ -492,9 +624,32 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                 if((carteLeftAnchor+(xBlue*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xBlue+1)*carteTileSize))&&((carteTopAnchor+(yBlue*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yBlue+3)*carteTileSize))||(carteLeftAnchor+((xBlue+1)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xBlue+2)*carteTileSize))&&((carteTopAnchor+((yBlue+2)*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yBlue+3)*carteTileSize)))
                     moveBlue = true;
 
-                if (isWonNiveau1()){
-                    if((carteLeftAnchor+(5*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((8)*carteTileSize))&&((carteTopAnchor+(3*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((8)*carteTileSize))){
+                if((carteLeftAnchor+((xViolet+1)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xViolet+2)*carteTileSize))&&((carteTopAnchor+(yViolet*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yViolet+3)*carteTileSize))||(carteLeftAnchor+((xViolet)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xViolet+2)*carteTileSize))&&((carteTopAnchor+((yViolet+2)*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yViolet+3)*carteTileSize)))
+                    moveViolet = true;
+
+                if((carteLeftAnchor+((xRose+1)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xRose+2)*carteTileSize))&&((carteTopAnchor+(yRose*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yRose+4)*carteTileSize))||(carteLeftAnchor+((xRose)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xRose+1)*carteTileSize))&&((carteTopAnchor+((yRose+1)*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yRose+2)*carteTileSize)))
+                    moveRose = true;
+
+                if((carteLeftAnchor+((xBluef)*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((xBluef+1)*carteTileSize))&&((carteTopAnchor+(yBluef*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((yBluef+1)*carteTileSize)))
+                    moveBluef = true;
+
+                if (isWonNiveau1()&&niveau==0){
+                    if((carteLeftAnchor+(3*carteTileSize))<event.getX()&&event.getX()<(carteLeftAnchor+((8)*carteTileSize))&&((carteTopAnchor+(6*carteTileSize)))<event.getY()&&event.getY()<(carteTopAnchor+((12)*carteTileSize))){
                         niveau=1;
+                        xVert = 1 + N1.nextInt(carteWidth - 3);
+                        yVert = 1 + N1.nextInt(carteHeight - 3);
+                        xVert1 = 1 + N1.nextInt(carteWidth - 3);
+                        yVert1 = 1 + N1.nextInt(carteHeight - 3);
+                        xRouge = 1 + N1.nextInt(carteWidth - 3);
+                        yRouge = 1 + N1.nextInt(carteHeight - 3);
+                        xBlue = 1 + N1.nextInt(carteWidth - 3);
+                        yBlue = 1 + N1.nextInt(carteHeight - 3);
+                        yBluef = 1 + N1.nextInt(carteHeight - 3);
+                        xBluef = 1 + N1.nextInt(carteWidth - 3);
+                        xRose = 1 + N1.nextInt(carteWidth - 3);
+                        yRose = 1 + N1.nextInt(carteHeight - 3);
+                        xViolet = 1 + N1.nextInt(carteWidth - 3);
+                        yViolet = 1 + N1.nextInt(carteWidth - 3);
                     }
                 }
             break;
@@ -532,7 +687,6 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                     {
                         xVert1 = (int) ((event.getX()) - (xvert1)) / carteTileSize;
                         yVert1 = (int) ((event.getY()) - (yvert1)) / carteTileSize;
-
                     }
                 }
 
@@ -570,17 +724,85 @@ public class CasseTeteView extends SurfaceView implements SurfaceHolder.Callback
                         yBlue = (int) ((event.getY()) - (yblue)) / carteTileSize;
                     }
                 }
+
+                if(moveViolet){
+                    int xTmp = xViolet;
+                    int yTmp = yViolet;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))) {
+                        xViolet = xTmp;
+                        yViolet = yTmp;
+                    }else if (IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)((event.getY()-yviolet)/carteTileSize),CST_violet)||IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)(((event.getY()-yviolet)/carteTileSize))+1,CST_violet)||IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)(((event.getY()-yviolet)/carteTileSize))+2,CST_violet)||IsFull((int)(((event.getX()-xviolet)/carteTileSize)), (int)(((event.getY()-yviolet)/carteTileSize))+2,CST_violet))
+                    {
+                        xViolet = xTmp;
+                        yViolet = yTmp;
+                    }else
+                    {
+                        xViolet = (int) ((event.getX()) - (xviolet)) / carteTileSize;
+                        yViolet = (int) ((event.getY()) - (yviolet)) / carteTileSize;
+                    }
+                }
+
+                if(moveRose){
+                    int xTmp = xRose;
+                    int yTmp = yRose;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))) {
+                        xRose = xTmp;
+                        yRose = yTmp;
+                    }else if (IsFull((int)((event.getX()-xrose)/carteTileSize)+1, (int)((event.getY()-yrose)/carteTileSize),CST_rose)||IsFull((int)((event.getX()-xrose)/carteTileSize)+1, (int)(((event.getY()-yrose)/carteTileSize))+1,CST_rose)||IsFull((int)((event.getX()-xrose)/carteTileSize), (int)(((event.getY()-yrose)/carteTileSize))+1,CST_rose)||IsFull((int)(((event.getX()-xrose)/carteTileSize))+1, (int)(((event.getY()-yrose)/carteTileSize))+2,CST_rose))
+                    {
+                        xRose = xTmp;
+                        yRose = yTmp;
+                    }else
+                    {
+                        xRose = (int) ((event.getX()) - (xrose)) / carteTileSize;
+                        yRose = (int) ((event.getY()) - (yrose)) / carteTileSize;
+                    }
+                }
+
+                if(moveBluef){
+                    int xTmp = xBluef;
+                    int yTmp = yBluef;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))) {
+                        xBluef = xTmp;
+                        yBluef = yTmp;
+                    }else if (IsFull((int)((event.getX()-xbluef)/carteTileSize), (int)((event.getY()-ybluef)/carteTileSize),CST_bluef))
+                    {
+                        xBluef = xTmp;
+                        yBluef = yTmp;
+                    }else
+                    {
+                        xBluef = (int) ((event.getX()) - (xbluef)) / carteTileSize;
+                        yBluef = (int) ((event.getY()) - (ybluef)) / carteTileSize;
+                    }
+                }
+
+                if(moveViolet){
+                    int xTmp = xViolet;
+                    int yTmp = yViolet;
+                    if(IsOut( (int)(event.getX()/carteTileSize), (int)(event.getY()/carteTileSize))) {
+                        xViolet = xTmp;
+                        yViolet = yTmp;
+                    }else if (IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)((event.getY()-yviolet)/carteTileSize),CST_violet)||IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)(((event.getY()-yviolet)/carteTileSize))+1,CST_violet)||IsFull((int)((event.getX()-xviolet)/carteTileSize)+1, (int)(((event.getY()-yviolet)/carteTileSize))+2,CST_violet)||IsFull((int)(((event.getX()-xviolet)/carteTileSize)), (int)(((event.getY()-yviolet)/carteTileSize))+2,CST_violet))
+                    {
+                        xViolet = xTmp;
+                        yViolet = yTmp;
+                    }else
+                    {
+                        xViolet = (int) ((event.getX()) - (xviolet)) / carteTileSize;
+                        yViolet = (int) ((event.getY()) - (yviolet)) / carteTileSize;
+                    }
+                }
             break;
             case MotionEvent.ACTION_UP:
-
                 moveVert = false;
                 moveVert1 = false;
                 moveRouge = false;
                 moveBlue = false;
+                moveBluef = false;
+                moveViolet = false;
+                moveRose = false;
                 break;
         }
-
-
                 invalidate ();
         return true;
     }
